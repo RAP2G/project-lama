@@ -44,6 +44,7 @@ fn main() -> Result<(), String> {
                     Keycode::S => context.move_down(),
                     Keycode::A => context.move_left(),
                     Keycode::D => context.move_right(),
+                    Keycode::R => context.reset(),
                     Keycode::Space => context.toggle_pause(),
 
                     _ => {}
@@ -51,7 +52,7 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         if frame_counter == 10 {
             context.next_tick();
             frame_counter = 0;

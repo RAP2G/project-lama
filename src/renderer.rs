@@ -38,6 +38,7 @@ impl Renderer {
         let color = match context.state {
             game_context::GameState::Playing => Color::RGB(0, 0, 0),
             game_context::GameState::Paused => Color::RGB(30, 30, 30),
+            game_context::GameState::Over => Color::RGB(100, 100, 100),
         };
         self.canvas.set_draw_color(color);
         self.canvas.clear();
