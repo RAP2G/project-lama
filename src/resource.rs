@@ -12,6 +12,14 @@ impl Resource {
     pub fn add(&mut self, data: impl Any) {
         self.data.insert(data.type_id(), Box::new(data));
     }
+    pub fn get_mut<T: Any>(&mut self) -> Option<&mut T> {
+        let type_id = TypeId::of::<T>();
+        if let Some(data) = self.data.get_mut(&type_id) {
+            data.downcast_mut()
+        } else {
+            None
+        }
+    }
 
     pub fn get_ref<T: Any>(&self) -> Option<&T> {
         let type_id = TypeId::of::<T>();
@@ -20,6 +28,10 @@ impl Resource {
         } else {
             None
         }
+    }
+    pub fn remove<T: Any>(&mut self) {
+        let type_id = TypeId::of::<T>();
+        self.data.remove(&type_id);
     }
 }
 
@@ -50,6 +62,33 @@ mod test {
         if let Some(extracted) = resources.get_ref::<WorldWidth>() {
             assert_eq!(extracted.0, 100.0);
         }
+    }
+
+    #[test]
+    fn get_resource_mut() {
+        let mut resources = Resource::default();
+        let world_width = WorldWidth(100.0);
+
+        resources.add(world_width);
+
+        {
+            if let Some(extracted) = resources.get_mut::<WorldWidth>() {
+                extracted.0 += 1.0;
+            }
+        }
+        if let Some(extracted) = resources.get_ref::<WorldWidth>() {
+            assert_eq!(extracted.0, 101.0);
+        }
+    }
+
+    #[test]
+    fn remove_resource() {
+        let mut resources = Resource::default();
+        let world_width = WorldWidth(100.0);
+        resources.add(world_width);
+        resources.remove::<WorldWidth>();
+        let extracted = resources.get_ref::<WorldWidth>();
+        assert!(extracted.is_none());
     }
 
     struct WorldWidth(pub f32);
