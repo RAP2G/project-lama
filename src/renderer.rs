@@ -1,0 +1,58 @@
+use sdl2::{pixels::Color, rect::Rect, render::WindowCanvas, video::Window};
+
+use crate::game_context::{self, GameContext, Point, DOT_SIZE_IN_PXS};
+
+pub struct Renderer {
+    canvas: WindowCanvas,
+}
+impl Renderer {
+    pub fn new(window: Window) -> Result<Self, String> {
+        let canvas = window
+            .into_canvas()
+            // .present_vsync()
+            .build()
+            .map_err(|e| e.to_string())?;
+        Ok(Renderer { canvas })
+    }
+
+    fn draw_dot(&mut self, point: &Point) -> Result<(), String> {
+        let Point(x, y) = point;
+        self.canvas.fill_rect(Rect::new(
+            x * DOT_SIZE_IN_PXS as i32,
+            y * DOT_SIZE_IN_PXS as i32,
+            DOT_SIZE_IN_PXS,
+            DOT_SIZE_IN_PXS,
+        ))?;
+        Ok(())
+    }
+
+    pub fn draw(&mut self, context: &GameContext) -> Result<(), String> {
+        self.draw_background(context);
+        self.draw_player(context)?;
+        self.draw_food(context)?;
+        self.canvas.present();
+        Ok(())
+    }
+
+    fn draw_background(&mut self, context: &GameContext) {
+        let color = match context.state {
+            game_context::GameState::Playing => Color::RGB(0, 0, 0),
+            game_context::GameState::Paused => Color::RGB(30, 30, 30),
+        };
+        self.canvas.set_draw_color(color);
+        self.canvas.clear();
+    }
+
+    fn draw_player(&mut self, context: &GameContext) -> Result<(), String> {
+        self.canvas.set_draw_color(Color::GREEN);
+        for point in &context.player_pos {
+            self.draw_dot(point)?;
+        }
+        Ok(())
+    }
+
+    fn draw_food(&mut self, context: &GameContext) -> Result<(), String> {
+        self.canvas.set_draw_color(Color::RED);
+        self.draw_dot(&context.food)
+    }
+}
