@@ -1,4 +1,6 @@
-use core::time::Duration;
+// pub mod ecs;
+
+// use core::time::Duration;
 use sdl2::event::*;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
@@ -12,12 +14,17 @@ fn main() -> Result<(), String> {
         .build()
         .expect("Fucked Up window");
 
-    let mut canvas = window.into_canvas().build().unwrap();
+    let mut canvas = window
+        .into_canvas()
+        .present_vsync()
+        .build()
+        .expect("Fucked Up Canvas");
 
     canvas.set_draw_color(Color::RGB(0, 255, 255));
     canvas.clear();
     canvas.present();
     let mut event_pump = sdl_context.event_pump().unwrap();
+
     let mut i = 0;
     'running: loop {
         i = (i + 1) % 255;
@@ -33,10 +40,9 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        // The rest of the game loop goes here...
 
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // The rest of the game loop goes here...
     }
     println!("Everything worked if you seee this");
 
